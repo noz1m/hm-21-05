@@ -27,12 +27,16 @@ public class MentorController(IMentorService mentorService)
     {
         return await mentorService.GetMentorWithMostStudents();
     }
+    [HttpGet("get-mentors-with-multiple-courses")]
+    public async Task<Response<List<MentorCoursesDto>>> GetMentorsWithMultipleCourses()
+    {
+        return await mentorService.GetMentorsWithMultipleCourses();
+    }
     [HttpPut]
     public async Task<Response<string>> UpdateMentor(Mentor mentor)
     {
         return await mentorService.UpdateMentor(mentor);
     }
-
     [HttpPost]
     public async Task<Response<string>> CreateMentor(Mentor mentor)
     {
