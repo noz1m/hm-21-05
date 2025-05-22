@@ -1,5 +1,7 @@
 using Domain.ApiResponse;
 using Domain.Entities;
+using Infrastructure.Data;
+using Domain.DTO;
 using Infrastructure.Interface;
 using Infrastructure.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +22,17 @@ public class MentorController(IMentorService mentorService)
     {
         return await mentorService.GetMentorById(id);
     }
+    [HttpGet("get-mentor-with-most-students")]
+    public async Task<Response<MentorStatDto>> GetMentorWithMostStudents()
+    {
+        return await mentorService.GetMentorWithMostStudents();
+    }
     [HttpPut]
     public async Task<Response<string>> UpdateMentor(Mentor mentor)
     {
         return await mentorService.UpdateMentor(mentor);
     }
+
     [HttpPost]
     public async Task<Response<string>> CreateMentor(Mentor mentor)
     {

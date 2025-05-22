@@ -2,6 +2,7 @@ using System.Data;
 using System.Net;
 using Dapper;
 using Domain.ApiResponse;
+using Domain.DTO;
 using Domain.Entities;
 using Infrastructure.Data;
 using Infrastructure.Interface;
@@ -54,5 +55,33 @@ public class MentorService(DataContext context) : IMentorService
         return result == null
             ? new Response<string>("Mentor not deleted", HttpStatusCode.BadRequest)
             : new Response<string>(null,"Mentor deleted");
+    }
+
+    public async Task<Response<MentorStatDto>> GetMentorWithMostStudents()
+    {
+        using var connection = await context.GetConnection();
+        var sql = @"select m.id,m.fullName,count(distinct sg.studentId) as StudentCount from mentors m
+            join groups g on g.mentorId = m.id
+            join studentGroups sg on sg.groupId = g.id
+            group by m.id,m.fullName
+            order by StudentCount desc
+            limit 1";
+        var result = await connection.QueryFirstOrDefaultAsync<MentorStatDto>(sql);
+        return result == null
+            ? new Response<MentorStatDto>("Mentor not found", HttpStatusCode.NotFound)
+            : new Response<MentorStatDto>(result,"Mentor found");
+    }
+
+    public async Task<Response<List<MentorCoursesDto>>> GetMentorsWithMultipleCourses()
+    {
+        using var connection = await context.GetConnection();
+        var sql = @"m.id,m.fullName,count(distinct g.courseId) as CourseCount from mentors m
+            join groups g on g.mentorId = m.id
+            group by m.id,m.fullName
+            having CourseCount > 1";
+        var result = await connection.QueryAsync<MentorCoursesDto>(sql);
+        return result == null
+            ? new Response<List<MentorCoursesDto>>("Mentors not found", HttpStatusCode.NotFound)
+            : new Response<List<MentorCoursesDto>>(result.ToList(),"Mentors found"); 
     }
 }
