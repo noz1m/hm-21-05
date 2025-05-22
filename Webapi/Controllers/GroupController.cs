@@ -1,5 +1,6 @@
 using Domain.ApiResponse;
 using Domain.Entities;
+using Domain.DTO;
 using Infrastructure.Interface;
 using Infrastructure.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,16 @@ public class GroupController(IGroupService groupService)
     public async Task<Response<Group>> GetGroupById(int id)
     {
         return await groupService.GetGroupById(id);
+    }
+    [HttpGet("get-students-per-group")]
+    public async Task<Response<List<StudentPerGroupDto>>> GetStudentsPerGroup()
+    {
+        return await groupService.GetStudentsPerGroup();
+    }
+    [HttpGet("get-empty-groups")]
+    public async Task<Response<List<Group>>> GetEmptyGroups()
+    {
+        return await groupService.GetEmptyGroups();
     }
     [HttpPut]
     public async Task<Response<string>> UpdateGroup(Group group)

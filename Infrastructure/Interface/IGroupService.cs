@@ -1,5 +1,6 @@
 using Domain.ApiResponse;
 using Domain.Entities;
+using Domain.DTO;
 namespace Infrastructure.Interface;
 
 public interface IGroupService
@@ -9,4 +10,6 @@ public interface IGroupService
     public Task<Response<string>> CreateGroup(Group group);
     public Task<Response<string>> UpdateGroup(Group group);
     public Task<Response<string>> DeleteGroup(int id);
+    public Task<Response<List<StudentPerGroupDto>>> GetStudentsPerGroup();
+    public Task<Response<List<Group>>> GetEmptyGroups();
 }

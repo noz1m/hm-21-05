@@ -12,6 +12,7 @@ builder.Services.AddScoped<IMentorService, MentorService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IStudentGroupService, StudentGroupService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

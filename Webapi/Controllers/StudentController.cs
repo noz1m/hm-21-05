@@ -1,5 +1,7 @@
 using Domain.ApiResponse;
 using Domain.Entities;
+using Domain.DTO;
+using Infrastructure.Data;
 using Infrastructure.Interface;
 using Infrastructure.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +22,26 @@ public class StudentController(IStudentService studentService)
     public async Task<Response<Student>> GetStudentByIdAsync(int id)
     {
         return await studentService.GetStudentByIdAsync(id);
+    }
+    [HttpGet("get-students-with-groups")]
+    public async Task<Response<List<StudentWithGroupsDto>>> GetStudentsWithGroups()
+    {
+        return await studentService.GetStudentsWithGroups();
+    }
+    [HttpGet("get-students-without-groups")]
+    public async Task<Response<List<Student>>> GetStudentsWithoutGroups()
+    {
+        return await studentService.GetStudentsWithoutGroups();
+    }
+    [HttpGet("get-dropped-out-students")]
+    public async Task<Response<List<Student>>> GetDroppedOutStudents()
+    {
+        return await studentService.GetDroppedOutStudents();
+    }
+    [HttpGet("get-graduated-students")]
+    public async Task<Response<List<StudentWithGroupsDto>>> GetGraduatedStudents()
+    {
+        return await studentService.GetGraduatedStudents();
     }
     [HttpPut]
     public async Task<Response<string>> UpdateStudentAsync(Student student)

@@ -3,13 +3,14 @@ using System.Net;
 using Dapper;
 using Domain.ApiResponse;
 using Domain.Entities;
+using Domain.DTO;
 using Infrastructure.Data;
 using Infrastructure.Interface;
 namespace Infrastructure.Service;
 
 public class GroupService(DataContext context) : IGroupService
 {
-    public async Task<Response<List<Group>>> GetAllGroup()
+       public async Task<Response<List<Group>>> GetAllGroup()
     {
         using var connection = await context.GetConnection();
         var sql = "select * from groups";
@@ -32,7 +33,7 @@ public class GroupService(DataContext context) : IGroupService
         var result = await connection.ExecuteAsync(sql, group);
         return result == null
             ? new Response<string>("Group not created", HttpStatusCode.BadRequest)
-            : new Response<string>(null,"Group created");
+            : new Response<string>(null, "Group created");
     }
     public async Task<Response<string>> UpdateGroup(Group group)
     {
@@ -41,7 +42,7 @@ public class GroupService(DataContext context) : IGroupService
         var result = await connection.ExecuteAsync(sql, group);
         return result == null
             ? new Response<string>("Group not updated", HttpStatusCode.BadRequest)
-            : new Response<string>(null,"Group updated");
+            : new Response<string>(null, "Group updated");
     }
     public async Task<Response<string>> DeleteGroup(int id)
     {
@@ -50,6 +51,28 @@ public class GroupService(DataContext context) : IGroupService
         var result = await connection.ExecuteAsync(sql, new { id });
         return result == null
             ? new Response<string>("Group not deleted", HttpStatusCode.BadRequest)
-            : new Response<string>(null,"Group deleted");
+            : new Response<string>(null, "Group deleted");
+    }
+    public async Task<Response<List<StudentPerGroupDto>>> GetStudentsPerGroup()
+    {
+        using var connection = await context.GetConnection();
+        var sql = @"select g.id, g.title, count(distinct sg.studentId) from groups g
+            join studentGroups sg on sg.groupId = g.id
+            group by g.id, g.title
+            order by g.title";
+        var result = await connection.QueryAsync<StudentPerGroupDto>(sql);
+        return result == null
+            ? new Response<List<StudentPerGroupDto>>("Groups not found", HttpStatusCode.NotFound)
+            : new Response<List<StudentPerGroupDto>>(result.ToList(), "Group found");
+    }
+
+    public async Task<Response<List<Group>>> GetEmptyGroups()
+    {
+        using var connection = await context.GetConnection();
+        var sql = "select * from groups where id not in (select groupId from studentGroups)";
+        var result = await connection.QueryAsync<Group>(sql);
+        return result == null
+            ? new Response<List<Group>>("Groups not found", HttpStatusCode.NotFound)
+            : new Response<List<Group>>(result.ToList(), "Group found");
     }
 }
