@@ -17,7 +17,7 @@ public class MentorController(IMentorService mentorService)
         return await mentorService.GetAllMentors();
     }
 
-    [HttpGet ("{id}")]
+    [HttpGet("{id}")]
     public async Task<Response<Mentor>> GetMentorById(int id)
     {
         return await mentorService.GetMentorById(id);
@@ -47,4 +47,5 @@ public class MentorController(IMentorService mentorService)
     {
         return await mentorService.DeleteMentor(id);
     }
+
 }

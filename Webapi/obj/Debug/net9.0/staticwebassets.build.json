@@ -1,12 +1,20 @@
 {
   "Version": 1,
-  "Hash": "bEG+xy4Ifl4xN1f57BtogrSzqG9Ds7JZbFJHcwbes3w=",
+  "Hash": "LB6g9L0Uzs/WW06sdrS9NWfJVMFlGx6dp4C8KTBVPg4=",
   "Source": "Webapi",
   "BasePath": "_content/Webapi",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "Webapi/wwwroot",
+      "Source": "Webapi",
+      "ContentRoot": "/Users/nozimjonqozievgmail.com/Desktop/DotNet/Dapper/classtask/classtask-7/Webapi/wwwroot/",
+      "BasePath": "_content/Webapi",
+      "Pattern": "**"
+    }
+  ],
   "Assets": [],
   "Endpoints": []
 }

@@ -6,10 +6,12 @@ using Domain.DTO;
 using Domain.Entities;
 using Infrastructure.Data;
 using Infrastructure.Interface;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Infrastructure.Service;
 
-public class StudentService(DataContext context) : IStudentService
+public class StudentService(DataContext context, IWebHostEnvironment webHostEnvironment) : IStudentService
 {
     public async Task<Response<List<Student>>> GetAllStudentsAsync()
     {
@@ -31,14 +33,34 @@ public class StudentService(DataContext context) : IStudentService
     }
     public async Task<Response<string>> CreateStudentAsync(Student student)
     {
-        using var connection = await context.GetConnection();
-        var sql = "insert into students (FullName, Email, Phone, EnrollmentDate) values (@FullName, @Email, @Phone, @EnrollmentDate)";
-        var result = await connection.ExecuteAsync(sql, student);
-        return result == null
+        var wwwRootPath = webHostEnvironment.WebRootPath;
+        var folderPath = Path.Combine(wwwRootPath, "StudentPhoto");
+        var fileName = student.Photo.FileName;
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+        var fullPath = Path.Combine(folderPath, fileName);
+
+        await using var connection = await context.GetConnection();
+        await using (var stream = File.Create(fullPath))
+        {
+            await student.Photo.CopyToAsync(stream);
+        }
+        var sql = "insert into students (FullName, Email, Phone, EnrollmentDate, photo) values (@FullName, @Email, @Phone, @EnrollmentDate, @photo)";
+        var anonymousObject = new
+        {
+            FullName = student.FullName,
+            Email = student.Email,
+            Phone = student.Phone,
+            EnrollmentDate = student.EnrollmentDate,
+            Photo = student.Phone
+        };
+        var result = await connection.ExecuteAsync(sql, anonymousObject);
+        return result == 0
             ? new Response<string>("Student not created", HttpStatusCode.BadRequest)
             : new Response<string>(null, "Student created");
     }
-
     public async Task<Response<string>> UpdateStudentAsync(Student student)
     {
         using var connection = await context.GetConnection();
@@ -105,3 +127,95 @@ public class StudentService(DataContext context) : IStudentService
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// using System.Net;
+// using Dapper;
+// using Domain.ApiResponse;
+// using Domain.Entities;
+// using Infrastructure.Data;
+// using Infrastructure.Interfaces;
+// using Microsoft.AspNetCore.Hosting;
+
+// namespace Infrastructure.Services;
+
+// public class CarService(DataContext context, IWebHostEnvironment webHostEnvironment) : ICarService
+// {
+//     public async Task<Response<List<GetCarDto>>> GetCarsAsync()
+//     {
+//         using (var connection = await context.GetConnectionAsync())
+//         {
+//             var cmd = "select * from cars";
+//             var cars = await connection.QueryAsync<GetCarDto>(cmd);
+
+//             return new Response<List<GetCarDto>>(cars.ToList(), "Cars retrieved successfully");
+//         }
+//     }
+
+//     public async Task<Response<Car>> GetCarAsync(int id)
+//     {
+//         using (var connection = await context.GetConnectionAsync())
+//         {
+//             var cmd = "select * from cars where id = @id";
+//             var car = await connection.QueryFirstOrDefaultAsync<Car>(cmd, new { Id = id });
+
+//             return car == null
+//                 ? new Response<Car>("Car not found", HttpStatusCode.NotFound)
+//                 : new Response<Car>(car, "Car successfully retrieved");
+//         }
+//     }
+
+//     public async Task<Response<string>> CreateCarAsync(Car car)
+//     {
+
+//         var wwwRootPath = webHostEnvironment.WebRootPath;
+//         var folderPath = Path.Combine(wwwRootPath, "CarImages");
+//         var fileName = car.Photo.FileName;
+
+//         if (!Directory.Exists(folderPath))
+//         {
+//             Directory.CreateDirectory(folderPath);
+//         }
+
+//         var fullPath = Path.Combine(folderPath, fileName);
+
+//         await using (var connection = await context.GetConnectionAsync())
+//         {
+//             await using (var stream = File.Create(fullPath))
+//             {
+//                 await car.Photo.CopyToAsync(stream);
+//             }
+
+//             var cmd = @$"insert into cars(model, manufacturer, year, pricePerDay, photo)
+//                          values (@model, @manufacturer, @year, @pricePerDay, @photo);";
+
+//             var anonymousObject = new
+//             {
+//                 Model = car.Model,
+//                 Manufacturer = car.Manufacturer,
+//                 Year = car.Year,
+//                 PricePerDay = car.PricePerDay,
+//                 Photo = car.Photo.FileName,
+//             };
+//             var result = await connection.ExecuteAsync(cmd, anonymousObject);
+//             return result == 0
+//                 ? new Response<string>("Some thing went wrong", HttpStatusCode.InternalServerError)
+//                 : new Response<string>(null, "Car successfully created");
+//         }
+//     }
+// }

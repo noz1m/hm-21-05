@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 namespace Domain.Entities;
 
 public class Student
@@ -7,4 +8,5 @@ public class Student
     public string Email { get; set; }
     public string Phone { get; set; }
     public DateTime EnrollmentDate { get; set; }
+    public IFormFile Photo { get; set; }
 }
