@@ -54,7 +54,7 @@ public class StudentService(DataContext context, IWebHostEnvironment webHostEnvi
             Email = student.Email,
             Phone = student.Phone,
             EnrollmentDate = student.EnrollmentDate,
-            Photo = student.Phone
+            Photo = student.Photo.FileName
         };
         var result = await connection.ExecuteAsync(sql, anonymousObject);
         return result == 0
